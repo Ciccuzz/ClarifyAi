@@ -32,6 +32,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(NullResponseException.class)
+    public ResponseEntity<Map<String, Object>> handleNullResponse(NullResponseException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("error", "NULL_RESPONSE");
+        body.put("message", ex.getMessage());
+        body.put("timestamp", LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {

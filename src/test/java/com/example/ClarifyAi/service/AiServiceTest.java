@@ -1,6 +1,7 @@
 package com.example.ClarifyAi.service;
 
 import com.example.ClarifyAi.exception.NotValidTextException;
+import com.example.ClarifyAi.exception.NullResponseException;
 import com.example.ClarifyAi.exception.UnknownActionException;
 import com.example.ClarifyAi.mapper.ActionMapper;
 import com.example.ClarifyAi.model.ActionEnum;
@@ -101,5 +102,17 @@ class AiServiceTest {
         NotValidTextException ex = assertThrows(NotValidTextException.class, () -> aiService.getPrompt(NULL_TEXT_REQUEST));
 
         assertTrue(ex.getMessage().contains("Text cannot be null or empty."));
+    }
+
+    @Test
+    void shouldThrowExceptionCauseOfNullResponse() {
+        NullResponseException ex = assertThrows(NullResponseException.class, () -> aiService.checkResponse(null));
+
+        assertTrue(ex.getMessage().contains("The response is null."));
+    }
+
+    @Test
+    void shouldNotThrowExceptionWhenResponseIsNotNull() {
+        assertDoesNotThrow(() -> aiService.checkResponse("Risposta valida"));
     }
 }

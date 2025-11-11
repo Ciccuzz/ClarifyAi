@@ -12,10 +12,10 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NotValidTextException.class)
-    public ResponseEntity<Map<String, Object>> handleTooLongText(NotValidTextException ex) {
+    @ExceptionHandler(NotValidRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleTooLongText(NotValidRequestException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("error", "TEXT_TOO_LONG");
+        body.put("error", "INVALID_REQUEST");
         body.put("message", ex.getMessage());
         body.put("timestamp", LocalDateTime.now());
 

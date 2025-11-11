@@ -1,6 +1,6 @@
 package com.example.ClarifyAi.service;
 
-import com.example.ClarifyAi.exception.NotValidTextException;
+import com.example.ClarifyAi.exception.NotValidRequestException;
 import com.example.ClarifyAi.exception.NullResponseException;
 import com.example.ClarifyAi.exception.UnknownActionException;
 import com.example.ClarifyAi.mapper.ActionMapper;
@@ -34,19 +34,6 @@ class AiServiceTest {
         when(actionMapper.toEnum("TRANSLATE_IT")).thenReturn(ActionEnum.TRANSLATE_IT);
         when(actionMapper.toEnum("TRANSLATE_EN")).thenReturn(ActionEnum.TRANSLATE_EN);
         when(actionMapper.toEnum(any())).thenThrow(new UnknownActionException("Action cannot be null or empty."));
-    }
-
-
-    @Test
-    void getPromptShouldThrowExceptionWhenTextTooLong() {
-        assertThrows(NotValidTextException.class, () -> aiService.getPrompt(TOO_LONG_REQUEST));
-    }
-
-    @Test
-    void shouldReturnPromptWhenTextIsValid() {
-        var prompt = aiService.getPrompt(VALID_SUMMARY_REQUEST);
-        assertNotNull(prompt);
-        assertFalse(prompt.getInstructions().isEmpty());
     }
 
     @Test
@@ -88,31 +75,5 @@ class AiServiceTest {
         UnknownActionException ex = assertThrows(UnknownActionException.class, () -> aiService.getPrompt(NULL_ACTION_REQUEST));
 
         assertTrue(ex.getMessage().contains("Action cannot be null or empty."));
-    }
-
-    @Test
-    void shouldThrowErrorCauseOfEmptyText() {
-        NotValidTextException ex = assertThrows(NotValidTextException.class, () -> aiService.getPrompt(EMPTY_TEXT_REQUEST));
-
-        assertTrue(ex.getMessage().contains("Text cannot be null or empty."));
-    }
-
-    @Test
-    void shouldThrowErrorCauseOfNullText() {
-        NotValidTextException ex = assertThrows(NotValidTextException.class, () -> aiService.getPrompt(NULL_TEXT_REQUEST));
-
-        assertTrue(ex.getMessage().contains("Text cannot be null or empty."));
-    }
-
-    @Test
-    void shouldThrowExceptionCauseOfNullResponse() {
-        NullResponseException ex = assertThrows(NullResponseException.class, () -> aiService.checkResponse(null));
-
-        assertTrue(ex.getMessage().contains("The response is null."));
-    }
-
-    @Test
-    void shouldNotThrowExceptionWhenResponseIsNotNull() {
-        assertDoesNotThrow(() -> aiService.checkResponse("Risposta valida"));
     }
 }

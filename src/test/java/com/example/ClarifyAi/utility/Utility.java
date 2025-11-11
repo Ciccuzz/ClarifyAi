@@ -18,6 +18,7 @@ public class Utility {
     public static final PromptRequest NULL_TEXT_REQUEST = new PromptRequest(null, "summary", Length.PERSONALIZED, 100);
 
 
+
     public static final PromptRequest VALID_SUMMARY_REQUEST = new PromptRequest(VALID_TEXT, "summary", Length.SHORT, 80);
     public static final PromptRequest VALID_TRANSLATE_IT_REQUEST = new PromptRequest(VALID_TEXT, "translate-it", Length.PERSONALIZED, 80);
     public static final PromptRequest VALID_TRANSLATE_EN_REQUEST = new PromptRequest(VALID_TEXT, "translate-en", Length.PERSONALIZED, 80);

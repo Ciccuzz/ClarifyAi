@@ -1,4 +1,4 @@
-package com.example.ClarifyAi.utility;
+package com.example.ClarifyAi.utilityClass;
 
 import com.example.ClarifyAi.dto.PromptRequest;
 import com.example.ClarifyAi.model.ActionEnum;

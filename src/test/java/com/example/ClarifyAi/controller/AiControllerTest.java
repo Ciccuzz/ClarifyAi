@@ -3,9 +3,8 @@ package com.example.ClarifyAi.controller;
 import com.example.ClarifyAi.dto.PromptRequest;
 import com.example.ClarifyAi.exception.NotValidRequestException;
 import com.example.ClarifyAi.exception.NullResponseException;
-import com.example.ClarifyAi.model.Length;
 import com.example.ClarifyAi.service.AiService;
-import com.example.ClarifyAi.service.ValidationService;
+import com.example.ClarifyAi.utility.Validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -21,8 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static com.example.ClarifyAi.utility.Utility.NULL_TEXT_REQUEST;
-import static com.example.ClarifyAi.utility.Utility.VALID_SUMMARY_REQUEST;
+import static com.example.ClarifyAi.utilityClass.Utility.NULL_TEXT_REQUEST;
+import static com.example.ClarifyAi.utilityClass.Utility.VALID_SUMMARY_REQUEST;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,7 +38,7 @@ class AiControllerTest {
     private AiService aiService;
 
     @MockitoBean
-    private ValidationService validationService;
+    private Validator validator;
 
     @MockitoBean
     private OpenAiChatModel chatModel;
@@ -68,8 +67,8 @@ class AiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(expectedText));
 
-        verify(validationService).checkRequest(promptRequest);
-        verify(validationService).checkResponse(expectedText);
+        verify(validator).checkRequest(promptRequest);
+        verify(validator).checkResponse(expectedText);
     }
 
     @Test
@@ -77,7 +76,7 @@ class AiControllerTest {
         PromptRequest invalidRequest = NULL_TEXT_REQUEST;
 
         doThrow(new NotValidRequestException("Text cannot be null."))
-                .when(validationService).checkRequest(invalidRequest);
+                .when(validator).checkRequest(invalidRequest);
 
         mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +85,7 @@ class AiControllerTest {
                 .andExpect(jsonPath("$.error").value("INVALID_REQUEST"))
                 .andExpect(jsonPath("$.message").value("Text cannot be null."));
 
-        verify(validationService).checkRequest(invalidRequest);
+        verify(validator).checkRequest(invalidRequest);
         verifyNoInteractions(aiService, chatModel);
     }
 
@@ -102,7 +101,7 @@ class AiControllerTest {
         when(chatModel.call(any(Prompt.class))).thenReturn(mockChatResponse);
 
         doThrow(new NullResponseException("The response is null."))
-                .when(validationService).checkResponse(null);
+                .when(validator).checkResponse(null);
 
         mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)

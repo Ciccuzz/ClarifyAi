@@ -1,4 +1,4 @@
-package com.example.ClarifyAi.service;
+package com.example.ClarifyAi.utility;
 
 import com.example.ClarifyAi.exception.NotValidRequestException;
 import com.example.ClarifyAi.exception.NullResponseException;
@@ -6,19 +6,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static com.example.ClarifyAi.utility.Utility.*;
+import static com.example.ClarifyAi.utilityClass.Utility.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class ValidationServiceTest {
+class ValidatorTest {
 
     @Autowired
-    private ValidationService validationService;
+    private Validator validator;
 
     //when request is null
     @Test
     void shouldThrowErrorCauseOfNullRequest() {
-        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validationService.checkRequest(null));
+        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validator.checkRequest(null));
 
         assertTrue(ex.getMessage().contains("Request body is null."));
     }
@@ -26,7 +26,7 @@ class ValidationServiceTest {
     //when text is null
     @Test
     void shouldThrowErrorCauseOfNullText() {
-        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validationService.checkRequest(NULL_TEXT_REQUEST));
+        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validator.checkRequest(NULL_TEXT_REQUEST));
 
         assertTrue(ex.getMessage().contains("Text cannot be null."));
     }
@@ -34,7 +34,7 @@ class ValidationServiceTest {
     //when action is null
     @Test
     void shouldThrowErrorCauseOfNullAction() {
-        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validationService.checkRequest(NULL_ACTION_REQUEST));
+        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validator.checkRequest(NULL_ACTION_REQUEST));
 
         assertTrue(ex.getMessage().contains("Action cannot be null."));
     }
@@ -42,20 +42,20 @@ class ValidationServiceTest {
     //when text is empty
     @Test
     void shouldThrowErrorCauseOfEmptyText() {
-        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validationService.checkRequest(EMPTY_TEXT_REQUEST));
+        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validator.checkRequest(EMPTY_TEXT_REQUEST));
 
         assertTrue(ex.getMessage().contains("Text cannot be empty."));
     }
 
     @Test
     void shouldNotThrowErrorCauseTextIsNotEmpty() {
-        assertDoesNotThrow(() -> validationService.checkRequest(VALID_SUMMARY_REQUEST));
+        assertDoesNotThrow(() -> validator.checkRequest(VALID_SUMMARY_REQUEST));
     }
 
     //when text too long
     @Test
     void shouldThrowErrorCauseOfTooLongText() {
-        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validationService.checkRequest(TOO_LONG_REQUEST));
+        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validator.checkRequest(TOO_LONG_REQUEST));
 
         assertTrue(ex.getMessage().contains("The entered text is too long (1100 words). Use max 1000 words."));
     }
@@ -63,14 +63,14 @@ class ValidationServiceTest {
     //when Response is null
     @Test
     void shouldThrowExceptionCauseOfNullResponse() {
-        NullResponseException ex = assertThrows(NullResponseException.class, () -> validationService.checkResponse(null));
+        NullResponseException ex = assertThrows(NullResponseException.class, () -> validator.checkResponse(null));
 
         assertTrue(ex.getMessage().contains("The response is null."));
     }
 
     @Test
     void shouldNotThrowExceptionWhenResponseIsNotNull() {
-        assertDoesNotThrow(() -> validationService.checkResponse("Valid Response"));
+        assertDoesNotThrow(() -> validator.checkResponse("Valid Response"));
     }
 
 }

@@ -1,7 +1,5 @@
 package com.example.ClarifyAi.service;
 
-import com.example.ClarifyAi.exception.NotValidRequestException;
-import com.example.ClarifyAi.exception.NullResponseException;
 import com.example.ClarifyAi.exception.UnknownActionException;
 import com.example.ClarifyAi.mapper.ActionMapper;
 import com.example.ClarifyAi.model.ActionEnum;
@@ -12,7 +10,7 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static com.example.ClarifyAi.utility.Utility.*;
+import static com.example.ClarifyAi.utilityClass.Utility.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

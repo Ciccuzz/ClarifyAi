@@ -3,29 +3,31 @@ package com.example.ClarifyAi.controller;
 import com.example.ClarifyAi.dto.AiResponse;
 import com.example.ClarifyAi.dto.PromptRequest;
 import com.example.ClarifyAi.service.AiService;
-import com.example.ClarifyAi.service.ValidationService;
+import com.example.ClarifyAi.utility.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AiController {
 
     private final AiService aiService;
     private final OpenAiChatModel chatModel;
-    private final ValidationService validationService;
+    private final Validator validator;
 
     @PostMapping
-    public AiResponse handlePrompt(@RequestBody PromptRequest promptRequest) {
-        validationService.checkRequest(promptRequest);
+    public Optional<AiResponse> handlePrompt(@RequestBody PromptRequest promptRequest) {
+        validator.checkRequest(promptRequest);
         Prompt prompt = aiService.getPrompt(promptRequest);
         String response = chatModel.call(prompt).getResult().getOutput().getText();
-        validationService.checkResponse(response);
-        return new AiResponse(response);
+        validator.checkResponse(response);
+        return Optional.of(new AiResponse(response));
     }
 
 }

@@ -1,17 +1,17 @@
-package com.example.ClarifyAi.service;
+package com.example.ClarifyAi.utility;
 
 
 import com.example.ClarifyAi.dto.PromptRequest;
 import com.example.ClarifyAi.exception.NotValidRequestException;
 import com.example.ClarifyAi.exception.NullResponseException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class ValidationService {
+public class Validator {
 
     public void checkRequest(PromptRequest promptRequest) {
         var request = Optional.ofNullable(promptRequest)

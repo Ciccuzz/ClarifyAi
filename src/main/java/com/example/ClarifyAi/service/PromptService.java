@@ -1,8 +1,6 @@
 package com.example.ClarifyAi.service;
 
 import com.example.ClarifyAi.dto.PromptRequest;
-import com.example.ClarifyAi.exception.NotValidRequestException;
-import com.example.ClarifyAi.exception.NullResponseException;
 import com.example.ClarifyAi.mapper.ActionMapper;
 import com.example.ClarifyAi.model.Length;
 import lombok.RequiredArgsConstructor;
@@ -17,29 +15,34 @@ import static com.example.ClarifyAi.model.ActionEnum.*;
 
 @Service
 @RequiredArgsConstructor
-public class AiService {
+public class PromptService {
 
     private final ActionMapper actionMapper;
 
     public Prompt getPrompt(PromptRequest promptRequest) {
-        String systemPrompt = getSystemPrompt(promptRequest.action(), promptRequest.maxWords(), promptRequest.length());
+        String systemPrompt = getSystemPrompt(promptRequest);
         return new Prompt(List.of(new SystemMessage(systemPrompt), new UserMessage(promptRequest.text())));
     }
 
-    private String getSystemPrompt(String action, Integer maxWords, Length length) {
-        String systemPrompt = switch (actionMapper.toEnum(action)) {
+    private String getSystemPrompt(PromptRequest promptRequest) {
+        return getAction(promptRequest.action(), promptRequest.personalizedAction()) + getLength(promptRequest.maxWords(), promptRequest.length());
+    }
+
+    private String getAction(String action, String personalizedAction) {
+        return switch (actionMapper.toEnum(action)) {
             case SUMMARY -> SUMMARY.string;
             case SIMPLIFY -> SIMPLIFY.string;
             case TRANSLATE_IT -> TRANSLATE_IT.string;
             case TRANSLATE_EN -> TRANSLATE_EN.string;
+            case PERSONALIZED -> personalizedAction;
         };
+    }
 
+    private String getLength(Integer maxWords, Length length) {
         if (maxWords != null && maxWords > 0) {
-            systemPrompt += " Usa massimo " + maxWords + " parole.";
+            return  " Usa massimo " + maxWords + " parole.";
         } else {
-            systemPrompt += " Usa massimo " + length.words + " parole.";
+            return  " Usa massimo " + length.words + " parole.";
         }
-
-        return systemPrompt;
     }
 }

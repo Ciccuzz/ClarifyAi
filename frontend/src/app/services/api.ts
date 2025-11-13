@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 export interface PromptRequest {
   text: string;
   action: string;
+  personalizedAction: string | null
   length: string;
   maxWords: number | null;
 }

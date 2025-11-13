@@ -1,7 +1,6 @@
 package com.example.ClarifyAi.utilityClass;
 
 import com.example.ClarifyAi.dto.PromptRequest;
-import com.example.ClarifyAi.model.ActionEnum;
 import com.example.ClarifyAi.model.Length;
 import lombok.experimental.UtilityClass;
 
@@ -12,18 +11,20 @@ public class Utility {
     public static final String NOT_VALID_TEXT = "Word ".repeat(1100);
     public static final String EMPTY_TEXT = "";
 
-    public static final PromptRequest MAX_WORDS_REQUEST = new PromptRequest(VALID_TEXT, "summary", Length.PERSONALIZED, 100);
-    public static final PromptRequest LENGTH_REQUEST = new PromptRequest(VALID_TEXT, "simplify", Length.SHORT, null);
-    public static final PromptRequest EMPTY_TEXT_REQUEST = new PromptRequest(EMPTY_TEXT, "summary", Length.PERSONALIZED, 100);
-    public static final PromptRequest NULL_TEXT_REQUEST = new PromptRequest(null, "summary", Length.PERSONALIZED, 100);
+    public static final PromptRequest MAX_WORDS_REQUEST = new PromptRequest(VALID_TEXT, "summary", null, Length.PERSONALIZED, 100);
+    public static final PromptRequest LENGTH_REQUEST = new PromptRequest(VALID_TEXT, "simplify",null, Length.SHORT, null);
+    public static final PromptRequest EMPTY_TEXT_REQUEST = new PromptRequest(EMPTY_TEXT, "summary",null, Length.PERSONALIZED, 100);
+    public static final PromptRequest NULL_TEXT_REQUEST = new PromptRequest(null, "summary", null,Length.PERSONALIZED, 100);
 
 
 
-    public static final PromptRequest VALID_SUMMARY_REQUEST = new PromptRequest(VALID_TEXT, "summary", Length.SHORT, 80);
-    public static final PromptRequest VALID_TRANSLATE_IT_REQUEST = new PromptRequest(VALID_TEXT, "translate-it", Length.PERSONALIZED, 80);
-    public static final PromptRequest VALID_TRANSLATE_EN_REQUEST = new PromptRequest(VALID_TEXT, "translate-en", Length.PERSONALIZED, 80);
-    public static final PromptRequest NULL_ACTION_REQUEST = new PromptRequest(VALID_TEXT, null, Length.PERSONALIZED, 80);
+    public static final PromptRequest VALID_SUMMARY_REQUEST = new PromptRequest(VALID_TEXT, "summary",null, Length.SHORT, 80);
+    public static final PromptRequest VALID_TRANSLATE_IT_REQUEST = new PromptRequest(VALID_TEXT, "translate-it",null, Length.PERSONALIZED, 80);
+    public static final PromptRequest VALID_TRANSLATE_EN_REQUEST = new PromptRequest(VALID_TEXT, "translate-en",null, Length.PERSONALIZED, 80);
+    public static final PromptRequest VALID_PERSONALIZED_ACTION_REQUEST = new PromptRequest(VALID_TEXT, "personalized","Traducilo in francese.", Length.PERSONALIZED, 80);
 
-    public static final PromptRequest TOO_LONG_REQUEST = new PromptRequest(NOT_VALID_TEXT, "summary", Length.SHORT, 80);
-    public static final PromptRequest VALID_TRANSLATION_REQUEST = new PromptRequest(VALID_TEXT, "translate-en", Length.TRANSLATION, null);
+    public static final PromptRequest NULL_ACTION_REQUEST = new PromptRequest(VALID_TEXT, null,null, Length.PERSONALIZED, 80);
+
+    public static final PromptRequest TOO_LONG_REQUEST = new PromptRequest(NOT_VALID_TEXT, "summary",null, Length.SHORT, 80);
+    public static final PromptRequest VALID_TRANSLATION_REQUEST = new PromptRequest(VALID_TEXT, "translate-en",null, Length.TRANSLATION, null);
 }

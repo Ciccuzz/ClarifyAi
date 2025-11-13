@@ -3,7 +3,7 @@ package com.example.ClarifyAi.controller;
 import com.example.ClarifyAi.dto.PromptRequest;
 import com.example.ClarifyAi.exception.NotValidRequestException;
 import com.example.ClarifyAi.exception.NullResponseException;
-import com.example.ClarifyAi.service.AiService;
+import com.example.ClarifyAi.service.PromptService;
 import com.example.ClarifyAi.utility.Validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class AiControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private AiService aiService;
+    private PromptService promptService;
 
     @MockitoBean
     private Validator validator;
@@ -58,7 +58,7 @@ class AiControllerTest {
         Generation generation = new Generation(assistantMessage);
         ChatResponse mockChatResponse = new ChatResponse(List.of(generation));
 
-        when(aiService.getPrompt(any(PromptRequest.class))).thenReturn(mockedPrompt);
+        when(promptService.getPrompt(any(PromptRequest.class))).thenReturn(mockedPrompt);
         when(chatModel.call(any(Prompt.class))).thenReturn(mockChatResponse);
 
         mockMvc.perform(post("/api")
@@ -86,7 +86,7 @@ class AiControllerTest {
                 .andExpect(jsonPath("$.message").value("Text cannot be null."));
 
         verify(validator).checkRequest(invalidRequest);
-        verifyNoInteractions(aiService, chatModel);
+        verifyNoInteractions(promptService, chatModel);
     }
 
     @Test
@@ -97,7 +97,7 @@ class AiControllerTest {
         Generation generation = new Generation(assistantMessage);
         ChatResponse mockChatResponse = new ChatResponse(List.of(generation));
 
-        when(aiService.getPrompt(any(PromptRequest.class))).thenReturn(mockedPrompt);
+        when(promptService.getPrompt(any(PromptRequest.class))).thenReturn(mockedPrompt);
         when(chatModel.call(any(Prompt.class))).thenReturn(mockChatResponse);
 
         doThrow(new NullResponseException("The response is null."))

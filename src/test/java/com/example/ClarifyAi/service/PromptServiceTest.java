@@ -16,10 +16,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class AiServiceTest {
+class PromptServiceTest {
 
     @Autowired
-    private AiService aiService;
+    private PromptService promptService;
 
     @Mock
     private ActionMapper actionMapper;
@@ -36,7 +36,7 @@ class AiServiceTest {
 
     @Test
     void shouldGenerateSummaryPromptWithCustomMaxWords() {
-        var prompt = aiService.getPrompt(MAX_WORDS_REQUEST);
+        var prompt = promptService.getPrompt(MAX_WORDS_REQUEST);
         String content = ((SystemMessage) prompt.getInstructions().getFirst()).getText();
 
         assertTrue(content.trim().startsWith("Riassumi il seguente testo in modo chiaro:"));
@@ -45,7 +45,7 @@ class AiServiceTest {
 
     @Test
     void shouldGenerateSimplifyPromptWithFallbackLength() {
-        var prompt = aiService.getPrompt(LENGTH_REQUEST);
+        var prompt = promptService.getPrompt(LENGTH_REQUEST);
         String content = ((SystemMessage) prompt.getInstructions().getFirst()).getText();
 
         assertTrue(content.trim().startsWith("Spiega in modo semplice e comprensibile:"));
@@ -54,7 +54,7 @@ class AiServiceTest {
 
     @Test
     void shouldGenerateTranslateItPrompt() {
-        var prompt = aiService.getPrompt(VALID_TRANSLATE_IT_REQUEST);
+        var prompt = promptService.getPrompt(VALID_TRANSLATE_IT_REQUEST);
         String content = ((SystemMessage) prompt.getInstructions().getFirst()).getText();
 
         assertTrue(content.trim().startsWith("Traduci in italiano il seguente testo:"));
@@ -62,15 +62,23 @@ class AiServiceTest {
 
     @Test
     void shouldGenerateTranslateEnPrompt() {
-        var prompt = aiService.getPrompt(VALID_TRANSLATE_EN_REQUEST);
+        var prompt = promptService.getPrompt(VALID_TRANSLATE_EN_REQUEST);
         String content = ((SystemMessage) prompt.getInstructions().getFirst()).getText();
 
         assertTrue(content.trim().startsWith("Translate the following text into English:"));
     }
 
     @Test
+    void shouldGeneratePersonalizedActionPrompt() {
+        var prompt = promptService.getPrompt(VALID_PERSONALIZED_ACTION_REQUEST);
+        String content = ((SystemMessage) prompt.getInstructions().getFirst()).getText();
+
+        assertTrue(content.trim().startsWith("Traducilo in francese."));
+    }
+
+    @Test
     void shouldUseDefaultPromptForUnknownAction() {
-        UnknownActionException ex = assertThrows(UnknownActionException.class, () -> aiService.getPrompt(NULL_ACTION_REQUEST));
+        UnknownActionException ex = assertThrows(UnknownActionException.class, () -> promptService.getPrompt(NULL_ACTION_REQUEST));
 
         assertTrue(ex.getMessage().contains("Action cannot be null or empty."));
     }

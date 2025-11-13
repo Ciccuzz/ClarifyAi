@@ -11,7 +11,7 @@ import { ApiService, PromptRequest } from './services/api';
     <div class="container">
       <h1>ClarifyAI 🧠</h1>
 
-      <form (ngSubmit)="sendPrompt()" class="form">
+      <form (ngSubmit)="sendPrompt()" class="form" novalidate>
         <label>Text:</label>
         <textarea
           [(ngModel)]="prompt.text"
@@ -22,24 +22,34 @@ import { ApiService, PromptRequest } from './services/api';
         </textarea>
 
         <label>Action:</label>
-        <select [(ngModel)]="prompt.action" name="action">
-                  <option value="">-- Select action --</option>
-                  <option value="SUMMARY">Summary</option>
-                  <option value="SIMPLIFY">Simplify</option>
-                  <option value="TRANSLATE_IT">Translate-it</option>
-                  <option value="TRANSLATE_EN">Translate-en</option>
-                </select>
+        <select [(ngModel)]="prompt.action" name="action" required>
+          <option value="">-- Select action --</option>
+          <option value="SUMMARY">Summary</option>
+          <option value="SIMPLIFY">Simplify</option>
+          <option value="TRANSLATE_IT">Translate-it</option>
+          <option value="TRANSLATE_EN">Translate-en</option>
+          <option value="PERSONALIZED">Personalized</option>
+        </select>
+
+        <div *ngIf="prompt.action === 'PERSONALIZED'">
+          <label>Personalized Action:</label>
+          <textarea
+            [(ngModel)]="prompt.personalizedAction"
+            name="personalizedAction"
+            rows="3"
+            placeholder="Enter your action here..."
+            required>
+          </textarea>
+        </div>
 
         <label>Length:</label>
-        <select [(ngModel)]="prompt.length" name="length">
+        <select [(ngModel)]="prompt.length" name="length" required>
           <option value="">-- Select length --</option>
-          <option value="VERY_SHORT">Very Short</option>
           <option value="SHORT">Short</option>
           <option value="MEDIUM">Medium</option>
           <option value="LONG">Long</option>
-          <option value="EXTRA_LONG">Extra Long</option>
           <option value="TRANSLATION">Translation Length</option>
-          <option value="PERSONALIZED">Personalized(choose the number of max words)</option>
+          <option value="PERSONALIZED">Personalized (choose the number of max words)</option>
         </select>
 
         <div *ngIf="prompt.length === 'PERSONALIZED'">
@@ -48,7 +58,12 @@ import { ApiService, PromptRequest } from './services/api';
             type="number"
             [(ngModel)]="prompt.maxWords"
             name="maxWords"
-            placeholder="Es: 200" />
+            placeholder="e.g., 200"
+            [required]="prompt.length === 'PERSONALIZED'" />
+        </div>
+
+        <div *ngIf="formError" class="error-message">
+          *Compilare tutti i campi per continuare.*
         </div>
 
         <div class="submit-row">
@@ -58,10 +73,11 @@ import { ApiService, PromptRequest } from './services/api';
 
           <div *ngIf="isLoading" class="spinner-inline">
             <div class="spinner"></div>
-            <span>Generating response...</span><
+            <span>Generating response...</span>
           </div>
         </div>
       </form>
+
 
       <div *ngIf="risposta" class="risposta">
         <h3>Response:</h3>
@@ -111,30 +127,50 @@ export class AppComponent {
   prompt: PromptRequest = {
     text: '',
     action: '',
+    personalizedAction: '',
     length: '',
     maxWords: null
   };
 
   risposta: string | null = null;
   isLoading = false;
+  formError = false; // ✅ aggiungi questa riga
 
   constructor(private api: ApiService) {}
 
-    sendPrompt() {
-      if (this.isLoading) return;
-      this.isLoading = true;
-      this.risposta = null;
-
-      this.api.sendPrompt(this.prompt).subscribe({
-        next: (res: any) => {
-          this.risposta = res.result || res.response || 'Nessuna risposta ricevuta';
-          this.isLoading = false;
-        },
-        error: (err: any) => {
-          console.error('Errore API:', err);
-          this.risposta = 'Errore nel server.';
-          this.isLoading = false;
-        }
-      });
+  sendPrompt() {
+    // ✅ Controllo dei campi
+    if (!this.prompt.text || !this.prompt.action || !this.prompt.length) {
+      this.formError = true;
+      return;
     }
+
+    if (this.prompt.action === 'PERSONALIZED' && !this.prompt.personalizedAction) {
+      this.formError = true;
+      return;
+    }
+
+    if (this.prompt.length === 'PERSONALIZED' && !this.prompt.maxWords) {
+      this.formError = true;
+      return;
+    }
+
+    this.formError = false; // reset errore se tutto ok
+
+    if (this.isLoading) return;
+    this.isLoading = true;
+    this.risposta = null;
+
+    this.api.sendPrompt(this.prompt).subscribe({
+      next: (res: any) => {
+        this.risposta = res.result || res.response || 'Nessuna risposta ricevuta';
+        this.isLoading = false;
+      },
+      error: (err: any) => {
+        console.error('Errore API:', err);
+        this.risposta = 'Errore nel server.';
+        this.isLoading = false;
+      }
+    });
   }
+}

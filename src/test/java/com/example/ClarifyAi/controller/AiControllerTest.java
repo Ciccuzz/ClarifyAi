@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static com.example.ClarifyAi.utilityClass.Utility.NULL_TEXT_REQUEST;
-import static com.example.ClarifyAi.utilityClass.Utility.VALID_SUMMARY_REQUEST;
+import static com.example.ClarifyAi.utilityClass.Utility.VALID_REQUEST;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,7 +50,7 @@ class AiControllerTest {
 
     @Test
     void handlePrompt_shouldReturnValidResponse_whenRequestIsCorrect() throws Exception {
-        PromptRequest promptRequest = VALID_SUMMARY_REQUEST;
+        PromptRequest promptRequest = VALID_REQUEST;
         Prompt mockedPrompt = new Prompt(List.of());
         String expectedText = "Risposta mockata";
 
@@ -105,7 +105,7 @@ class AiControllerTest {
 
         mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(VALID_SUMMARY_REQUEST)))
+                        .content(objectMapper.writeValueAsString(VALID_REQUEST)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("NULL_RESPONSE"))
                 .andExpect(jsonPath("$.message").value("The response is null."));

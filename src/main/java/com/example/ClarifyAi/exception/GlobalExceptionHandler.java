@@ -22,16 +22,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(UnknownActionException.class)
-    public ResponseEntity<Map<String, Object>> handleTooLongText(UnknownActionException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("error", "UNKNOWN_ACTION");
-        body.put("message", ex.getMessage());
-        body.put("timestamp", LocalDateTime.now());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-
     @ExceptionHandler(NullResponseException.class)
     public ResponseEntity<Map<String, Object>> handleNullResponse(NullResponseException ex) {
         Map<String, Object> body = new LinkedHashMap<>();

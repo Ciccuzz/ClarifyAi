@@ -1,0 +1,29 @@
+<div class="chat-shell">
+
+  <div class="chat-header">
+    <div class="title">CLARIFYAI</div>
+    <div class="status" (click)="refreshPageContext()">LEGGENDO PAGINA</div>
+  </div>
+
+  <div class="chat-body">
+
+    <app-message
+      *ngFor="let msg of messages"
+      [msg]="msg">
+    </app-message>
+
+  </div>
+
+  <div class="chat-footer">
+    <div class="input-wrap">
+      <input
+        class="input"
+        [(ngModel)]="userInput"
+        (keydown.enter)="sendMessage()"
+        placeholder="Chiedi a ClarifyAI..."
+      />
+      <button class="send-btn" (click)="sendMessage()">➤</button>
+    </div>
+  </div>
+
+</div>

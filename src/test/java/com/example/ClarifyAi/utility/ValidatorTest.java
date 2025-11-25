@@ -31,14 +31,6 @@ class ValidatorTest {
         assertTrue(ex.getMessage().contains("Text cannot be null."));
     }
 
-    //when action is null
-    @Test
-    void shouldThrowErrorCauseOfNullAction() {
-        NotValidRequestException ex = assertThrows(NotValidRequestException.class, () -> validator.checkRequest(NULL_ACTION_REQUEST));
-
-        assertTrue(ex.getMessage().contains("Action cannot be null."));
-    }
-
     //when text is empty
     @Test
     void shouldThrowErrorCauseOfEmptyText() {
@@ -49,7 +41,7 @@ class ValidatorTest {
 
     @Test
     void shouldNotThrowErrorCauseTextIsNotEmpty() {
-        assertDoesNotThrow(() -> validator.checkRequest(VALID_SUMMARY_REQUEST));
+        assertDoesNotThrow(() -> validator.checkRequest(VALID_REQUEST));
     }
 
     //when text too long

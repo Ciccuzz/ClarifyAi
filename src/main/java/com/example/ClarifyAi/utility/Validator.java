@@ -20,9 +20,6 @@ public class Validator {
         Optional.ofNullable(request.text())
                 .orElseThrow(() -> new NotValidRequestException("Text cannot be null."));
 
-        Optional.ofNullable(request.action())
-                .orElseThrow(() -> new NotValidRequestException("Action cannot be null."));
-
         checkText(request.text());
     }
 
@@ -34,7 +31,7 @@ public class Validator {
     }
 
     private void checkText(String text) {
-        if (countWords(text)>1000) {
+        if (countWords(text) > 1000) {
             throw new NotValidRequestException("The entered text is too long (" + countWords(text) + " words). Use max 1000 words.");
         } else if (countWords(text) == 0) {
             throw new NotValidRequestException("Text cannot be empty.");

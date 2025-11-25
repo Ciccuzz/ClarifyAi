@@ -26,23 +26,23 @@
             ],
             "styles": [
               "src/styles.css"
-            ]
+            ],
+            "baseHref": "./"
           },
           "configurations": {
             "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": false,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
                 },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                "fonts": {
+                  "inline": false
                 }
-              ],
-              "outputHashing": "all"
+              },
+              "budgets": []
             },
             "development": {
               "optimization": false,

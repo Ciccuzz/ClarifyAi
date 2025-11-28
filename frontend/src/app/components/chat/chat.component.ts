@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, HostListener } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -17,6 +17,7 @@ import { MessageComponent } from '../messages/message.component';
 export class ChatComponent {
 
   userInput = "";
+
   messages: Message[] = [
     { text: "Ciao! Sono qui per aiutarti.", from: "ai" }
   ];
@@ -26,8 +27,44 @@ export class ChatComponent {
 
   isThinking = false;
 
+  // ⭐ Dropdown state
+  showContextMenu = false;
+  pageTitle = "Caricamento…";
+
   ngOnInit() {
+    this.refreshPageContext();
+  }
+
+  // Chiudi dropdown cliccando fuori
+  @HostListener("document:click", ["$event"])
+  handleOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest(".context-wrapper")) {
+      this.showContextMenu = false;
+    }
+  }
+
+  toggleContextMenu(event: MouseEvent) {
+    event.stopPropagation();
+    this.showContextMenu = !this.showContextMenu;
+  }
+
+  private extractTitle(context: string): string {
+    if (!context) return "Pagina sconosciuta";
+
+    const firstSentence = context.split(".")[0];
+    return firstSentence.split(" ").slice(0, 8).join(" ");
+  }
+
+  refreshPageContext() {
     this.context.refresh();
+
+    setTimeout(() => {
+      const ctx = this.context.getPageContext() || "";
+      this.pageTitle = this.extractTitle(ctx);
+    }, 500);
+
+    this.showContextMenu = false;
   }
 
   async sendMessage() {
@@ -58,10 +95,5 @@ export class ChatComponent {
     }
 
     this.isThinking = false;
-  }
-
-  refreshPageContext() {
-    this.context.refresh();
-    this.messages.push({ from: "ai", text: "Contesto aggiornato." });
   }
 }

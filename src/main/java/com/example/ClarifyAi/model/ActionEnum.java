@@ -7,7 +7,8 @@ public enum ActionEnum {
     SUMMARY("Riassumi il seguente testo in modo chiaro:"),
     SIMPLIFY("Spiega in modo semplice e comprensibile:"),
     TRANSLATE_IT("Traduci in italiano il seguente testo:"),
-    TRANSLATE_EN("Translate the following text into English:");
+    TRANSLATE_EN("Translate the following text into English:"),
+    PERSONALIZED("");
 
     public final String string;
 }

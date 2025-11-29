@@ -1,155 +1,111 @@
 package com.example.ClarifyAi.controller;
 
-import com.example.ClarifyAi.dto.PromptRequest;
-import com.example.ClarifyAi.exception.NotValidRequestException;
-import com.example.ClarifyAi.exception.NullResponseException;
-import com.example.ClarifyAi.service.AiService;
+import com.example.ClarifyAi.dto.ChatRequest;
+import com.example.ClarifyAi.dto.ChatResponse;
+import com.example.ClarifyAi.service.PromptService;
+import com.example.ClarifyAi.session.SessionData;
+import com.example.ClarifyAi.session.SessionStore;
 import com.example.ClarifyAi.utility.Validator;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
+import java.util.ArrayList;
 
-import static com.example.ClarifyAi.utilityClass.Utility.NULL_TEXT_REQUEST;
-import static com.example.ClarifyAi.utilityClass.Utility.VALID_SUMMARY_REQUEST;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-@WebMvcTest(AiController.class)
 class AiControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock
+    private PromptService promptService;
 
-    @MockitoBean
-    private AiService aiService;
-
-    @MockitoBean
-    private Validator validator;
-
-    @MockitoBean
+    @Mock
     private OpenAiChatModel chatModel;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Mock
+    private Validator validator;
 
+    @Mock
+    private SessionStore sessionStore;
 
+    @InjectMocks
+    private AiController aiController;
 
-    @Test
-    void handlePrompt_shouldReturnValidResponse_whenRequestIsCorrect() throws Exception {
-        PromptRequest promptRequest = VALID_SUMMARY_REQUEST;
-        Prompt mockedPrompt = new Prompt(List.of());
-        String expectedText = "Risposta mockata";
-
-        AssistantMessage assistantMessage = new AssistantMessage("Risposta mockata");
-        Generation generation = new Generation(assistantMessage);
-        ChatResponse mockChatResponse = new ChatResponse(List.of(generation));
-
-        when(aiService.getPrompt(any(PromptRequest.class))).thenReturn(mockedPrompt);
-        when(chatModel.call(any(Prompt.class))).thenReturn(mockChatResponse);
-
-        mockMvc.perform(post("/api")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(promptRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(expectedText));
-
-        verify(validator).checkRequest(promptRequest);
-        verify(validator).checkResponse(expectedText);
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void handlePrompt_shouldReturnBadRequest_whenRequestIsInvalid() throws Exception {
-        PromptRequest invalidRequest = NULL_TEXT_REQUEST;
+    void chat_shouldReturnAiResponse_andUpdateSession() {
+        // ARRANGE
+        ChatRequest request = new ChatRequest("SESSION1", "Ciao AI!");
 
-        doThrow(new NotValidRequestException("Text cannot be null."))
-                .when(validator).checkRequest(invalidRequest);
+        SessionData session = new SessionData(
+                "Contesto",
+                new ArrayList<>(),
+                System.currentTimeMillis()
+        );
+        when(sessionStore.getSession("SESSION1")).thenReturn(session);
 
-        mockMvc.perform(post("/api")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("INVALID_REQUEST"))
-                .andExpect(jsonPath("$.message").value("Text cannot be null."));
+        Prompt prompt = mock(Prompt.class);
+        when(promptService.getPrompt(session, "Ciao AI!")).thenReturn(prompt);
 
-        verify(validator).checkRequest(invalidRequest);
-        verifyNoInteractions(aiService, chatModel);
+        // ChatResponse di Spring AI
+        org.springframework.ai.chat.model.ChatResponse springResponse =
+                mock(org.springframework.ai.chat.model.ChatResponse.class);
+
+        Generation generation = mock(Generation.class);
+        AssistantMessage aiMessage = mock(AssistantMessage.class);
+
+        when(chatModel.call(prompt)).thenReturn(springResponse);
+        when(springResponse.getResult()).thenReturn(generation);
+
+        when(generation.getOutput()).thenReturn(aiMessage);
+
+        when(aiMessage.getText()).thenReturn("Risposta AI");
+
+        // ACT
+        ChatResponse response = aiController.chat(request);
+
+        // ASSERT
+        assertEquals("Risposta AI", response.result());
+        assertEquals(2, session.getMessages().size());
+        assertEquals("Utente: Ciao AI!", session.getMessages().get(0));
+        assertEquals("AI: Risposta AI", session.getMessages().get(1));
+
+        verify(validator).checkChatRequest(request);
+        verify(promptService).getPrompt(session, "Ciao AI!");
+        verify(validator).checkChatResponse("Risposta AI");
     }
 
     @Test
-    void handlePrompt_shouldReturnBadRequest_whenResponseIsNull() throws Exception {
-        Prompt mockedPrompt = new Prompt(List.of());
+    void chat_shouldThrowException_whenSessionNotFound() {
+        // ARRANGE
+        ChatRequest request = new ChatRequest("SESSION_MISSING", "Ciao");
 
-        AssistantMessage assistantMessage = new AssistantMessage(null);
-        Generation generation = new Generation(assistantMessage);
-        ChatResponse mockChatResponse = new ChatResponse(List.of(generation));
+        // Simula sessione non trovata
+        when(sessionStore.getSession("SESSION_MISSING")).thenReturn(null);
 
-        when(aiService.getPrompt(any(PromptRequest.class))).thenReturn(mockedPrompt);
-        when(chatModel.call(any(Prompt.class))).thenReturn(mockChatResponse);
+        // ACT + ASSERT
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> aiController.chat(request)
+        );
 
-        doThrow(new NullResponseException("The response is null."))
-                .when(validator).checkResponse(null);
+        assertEquals("Sessione non trovata: SESSION_MISSING", ex.getMessage());
 
-        mockMvc.perform(post("/api")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(VALID_SUMMARY_REQUEST)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("NULL_RESPONSE"))
-                .andExpect(jsonPath("$.message").value("The response is null."));
+        // Nessuna interazione con promptService, chatModel, validator
+        verifyNoInteractions(promptService);
+        verifyNoInteractions(chatModel);
     }
 
-
-//    @Test
-//    void handlePrompt_shouldReturnAiResponse() throws Exception {
-//
-//        Prompt mockedPrompt = new Prompt(List.of());
-//
-//        AssistantMessage assistantMessage = new AssistantMessage("Risposta mockata");
-//        Generation generation = new Generation(assistantMessage);
-//        ChatResponse mockChatResponse = new ChatResponse(List.of(generation));
-//
-//        when(aiService.getPrompt(any(PromptRequest.class))).thenReturn(mockedPrompt);
-//        when(chatModel.call(any(Prompt.class))).thenReturn(mockChatResponse);
-//
-//        // Act & Assert
-//        mockMvc.perform(post("/api").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(VALID_SUMMARY_REQUEST))).andExpect(status().isOk()).andExpect(jsonPath("$.result").value("Risposta mockata"));
-//    }
-
-//    @Test
-//    void handlePrompt_shouldReturnBadRequest_whenResponseIsNull() throws Exception {
-//
-//        Prompt prompt = new Prompt(List.of());
-//
-//        AssistantMessage assistantMessage = new AssistantMessage(null); // Simula testo null
-//        Generation generation = new Generation(assistantMessage);
-//        ChatResponse chatResponse = new ChatResponse(List.of(generation));
-//
-//        when(aiService.getPrompt(any(PromptRequest.class))).thenReturn(prompt);
-//        when(chatModel.call(any(Prompt.class))).thenReturn(chatResponse);
-//
-//        doThrow(new NullResponseException("The response is null"))
-//                .when(aiService)
-//                .checkResponse(null);
-//
-//        mockMvc.perform(post("/api")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(VALID_SUMMARY_REQUEST)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.error").value("NULL_RESPONSE"))
-//                .andExpect(jsonPath("$.message").value("The response is null"))
-//                .andExpect(jsonPath("$.timestamp").exists());
-//    }
 }

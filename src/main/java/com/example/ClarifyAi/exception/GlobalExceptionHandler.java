@@ -12,20 +12,10 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NotValidRequestException.class)
-    public ResponseEntity<Map<String, Object>> handleTooLongText(NotValidRequestException ex) {
+    @ExceptionHandler(NotValidChatRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleTooLongText(NotValidChatRequestException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("error", "INVALID_REQUEST");
-        body.put("message", ex.getMessage());
-        body.put("timestamp", LocalDateTime.now());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-
-    @ExceptionHandler(UnknownActionException.class)
-    public ResponseEntity<Map<String, Object>> handleTooLongText(UnknownActionException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("error", "UNKNOWN_ACTION");
         body.put("message", ex.getMessage());
         body.put("timestamp", LocalDateTime.now());
 
@@ -36,6 +26,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleNullResponse(NullResponseException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("error", "NULL_RESPONSE");
+        body.put("message", ex.getMessage());
+        body.put("timestamp", LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(NotValidStartSessionRequest.class)
+    public ResponseEntity<Map<String, Object>> handleNullResponse(NotValidStartSessionRequest ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("error", "INVALID_START_SESSION");
         body.put("message", ex.getMessage());
         body.put("timestamp", LocalDateTime.now());
 

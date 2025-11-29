@@ -2,6 +2,8 @@ package com.example.ClarifyAi.controller;
 
 import com.example.ClarifyAi.dto.ChatRequest;
 import com.example.ClarifyAi.dto.ChatResponse;
+import com.example.ClarifyAi.dto.StartSessionRequest;
+import com.example.ClarifyAi.dto.StartSessionResponse;
 import com.example.ClarifyAi.service.PromptService;
 import com.example.ClarifyAi.session.SessionData;
 import com.example.ClarifyAi.session.SessionStore;
@@ -107,5 +109,24 @@ class AiControllerTest {
         verifyNoInteractions(promptService);
         verifyNoInteractions(chatModel);
     }
+
+    @Test
+    void startSession_shouldCreateSessionAndReturnId() {
+        // ARRANGE
+        StartSessionRequest request = new StartSessionRequest("contesto di test");
+
+        when(sessionStore.createSession("contesto di test"))
+                .thenReturn("SESSION123");
+
+        // ACT
+        StartSessionResponse response = aiController.startSession(request);
+
+        // ASSERT
+        verify(validator).checkStartSessionRequest(request);  // validazione eseguita
+        verify(sessionStore).createSession("contesto di test");  // sessione creata
+
+        assertEquals("SESSION123", response.sessionId());
+    }
+
 
 }

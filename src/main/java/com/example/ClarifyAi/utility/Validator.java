@@ -1,8 +1,10 @@
 package com.example.ClarifyAi.utility;
 
 
-import com.example.ClarifyAi.dto.PromptRequest;
-import com.example.ClarifyAi.exception.NotValidRequestException;
+import com.example.ClarifyAi.dto.ChatRequest;
+import com.example.ClarifyAi.dto.StartSessionRequest;
+import com.example.ClarifyAi.exception.NotValidChatRequestException;
+import com.example.ClarifyAi.exception.NotValidStartSessionRequest;
 import com.example.ClarifyAi.exception.NullResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,28 +15,38 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class Validator {
 
-    public void checkRequest(PromptRequest promptRequest) {
-        var request = Optional.ofNullable(promptRequest)
-                .orElseThrow(() -> new NotValidRequestException("Request body is null."));
+    public void checkChatRequest(ChatRequest chatRequest) {
+        var request = Optional.ofNullable(chatRequest)
+                .orElseThrow(() -> new NotValidChatRequestException("Request body is null."));
 
         Optional.ofNullable(request.text())
-                .orElseThrow(() -> new NotValidRequestException("Text cannot be null."));
+                .orElseThrow(() -> new NotValidChatRequestException("Text cannot be null."));
+
+        Optional.ofNullable(request.sessionId())
+                .orElseThrow(() -> new NotValidChatRequestException("Session Id cannot be null."));
 
         checkText(request.text());
     }
 
-
-    public void checkResponse(String response) {
+    public void checkChatResponse(String response) {
         if (response == null) {
             throw new NullResponseException("The response is null.");
         }
     }
 
+    public void checkStartSessionRequest(StartSessionRequest startSessionRequest) {
+        var request = Optional.ofNullable(startSessionRequest)
+                .orElseThrow(() -> new NotValidStartSessionRequest("Start Session Request is null."));
+
+        Optional.ofNullable(request.context())
+                .orElseThrow(() -> new NotValidStartSessionRequest("Context cannot be null."));
+    }
+
     private void checkText(String text) {
         if (countWords(text) > 1000) {
-            throw new NotValidRequestException("The entered text is too long (" + countWords(text) + " words). Use max 1000 words.");
+            throw new NotValidChatRequestException("The entered text is too long (" + countWords(text) + " words). Use max 1000 words.");
         } else if (countWords(text) == 0) {
-            throw new NotValidRequestException("Text cannot be empty.");
+            throw new NotValidChatRequestException("Text cannot be empty.");
         }
     }
 

@@ -1,22 +1,26 @@
 package com.example.ClarifyAi.utilityClass;
 
-import com.example.ClarifyAi.dto.PromptRequest;
+import com.example.ClarifyAi.dto.ChatRequest;
+import com.example.ClarifyAi.dto.StartSessionRequest;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Utility {
 
-    public static final String VALID_TEXT = "La fotosintesi clorofilliana è un processo chimico per mezzo del quale le piante verdi e altri organismi producono sostanze organiche – principalmente carboidrati – a partire dal primo reagente, l'anidride carbonica atmosferica e l'acqua metabolica, in presenza di luce solare, rientrando tra i processi di anabolismo dei carboidrati, del tutto opposta ai processi inversi di catabolismo. Durante la fotosintesi, con la mediazione della clorofilla, la luce solare o artificiale permette di convertire sei molecole di CO2 e sei molecole d'H2O in una molecola di glucosio (C6H12O6), zucchero fondamentale per la vita della pianta. Come sottoprodotto della reazione si producono sei molecole di ossigeno, che la pianta libera nell'atmosfera attraverso gli stomi che si trovano nella foglia. La formula stechiometrica della reazione è: 6CO2 + 6H2O + luce → C6H12O6 + 6O2. Si tratta del processo di produzione primario di composti organici del carbonio da sostanze inorganiche nettamente dominante sulla Terra (trasforma circa 115×10^9 tonnellate di carbonio atmosferico in biomassa ogni anno), rientrando dunque nel cosiddetto ciclo del carbonio, ed è inoltre l'unico processo biologicamente importante in grado di raccogliere l'energia solare, da cui, fondamentalmente, dipende la vita sulla Terra (la quantità di energia solare catturata dalla fotosintesi è immensa, dell'ordine dei 100 terawatt, circa sei volte quanto consuma attualmente la civiltà umana).";
-    public static final String NOT_VALID_TEXT = "Word ".repeat(1100);
-    public static final String VALID_TEXT2 = "Spiegami in poche parole cosa è un cavallo";
+    public static final String TOO_LONG_VALID_TEXT = "Word ".repeat(1100);
+    public static final String VALID_TEXT = "Spiegami in poche parole cosa è un cavallo";
     public static final String EMPTY_TEXT = "";
-
-    public static final PromptRequest EMPTY_TEXT_REQUEST = new PromptRequest(EMPTY_TEXT);
-    public static final PromptRequest NULL_TEXT_REQUEST = new PromptRequest(null);
-
-    public static final PromptRequest VALID_REQUEST = new PromptRequest(VALID_TEXT);
-    public static final PromptRequest VALID_REQUEST2 = new PromptRequest(VALID_TEXT2);
+    public static final String CONTEXT = "context";
 
 
-    public static final PromptRequest TOO_LONG_REQUEST = new PromptRequest(NOT_VALID_TEXT);
+    public static final ChatRequest VALID_REQUEST = new ChatRequest("1", VALID_TEXT);
+    public static final ChatRequest NULL_TEXT_REQUEST = new ChatRequest("1", null);
+    public static final ChatRequest TOO_LONG_TEXT_REQUEST = new ChatRequest("1", TOO_LONG_VALID_TEXT);
+    public static final ChatRequest NULL_SESSION_ID_REQUEST = new ChatRequest(null, VALID_TEXT);
+    public static final ChatRequest EMPTY_TEXT_REQUEST = new ChatRequest("1", EMPTY_TEXT);
+
+
+    public static final StartSessionRequest VALID_START_SESSION = new StartSessionRequest(CONTEXT);
+    public static final StartSessionRequest NULL_CONTEXT_START_SESSION = new StartSessionRequest(null);
+
 }

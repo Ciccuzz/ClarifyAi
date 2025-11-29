@@ -1,3 +1,4 @@
-export interface RequestModel {
+export interface ChatRequest {
+  sessionId: string;
   text: string;
 }

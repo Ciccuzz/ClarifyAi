@@ -1,6 +1,6 @@
 package com.example.ClarifyAi.service;
 
-import com.example.ClarifyAi.dto.PromptRequest;
+import com.example.ClarifyAi.session.SessionData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -10,23 +10,32 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PromptService {
 
-    public Prompt getPrompt(PromptRequest promptRequest) {
+    public Prompt getPrompt(SessionData session, String userMessage) {
 
-        String finalPrompt = """
-        L'utente ha scritto: %s
+        String system = """
+                Sei una AI che risponde alle domande basandosi sul contesto della pagina
+                e sulla conversazione precedente. Se l'utente chiede qualcosa fuori contesto,
+                deduci la risposta ma indica che non hai informazioni a riguardo.
+                """;
 
-        ----------
-        Contesto della pagina (testo estratto dalla pagina web):
-        %s
-        ----------
+        String combinedUserPrompt = """
+                CONTEXT:
+                %s
 
-        Usa il contesto sopra per rispondere in modo accurato.
-    """.formatted(
-                promptRequest.text(),
-                promptRequest.context() != null ? promptRequest.context() : "(nessun contesto disponibile)"
+                HISTORY:
+                %s
+
+                USER MESSAGE:
+                %s
+                """.formatted(
+                session.getContext(),
+                String.join("\n", session.getMessages()),
+                userMessage
         );
 
-        return new Prompt(new UserMessage(finalPrompt));
+        return new Prompt(
+                new org.springframework.ai.chat.messages.SystemMessage(system),
+                new UserMessage(combinedUserPrompt)
+        );
     }
-
 }

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ChatRequest } from '../models/request.model';
+import { StartSessionRequest } from '../models/startSession.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +13,13 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  sendText(text: string, context: string): Observable<any> {
-    return this.http.post(this.apiUrl, {
-      text,
-      context
-    });
+  startSession(context: string): Observable<any> {
+    const body: StartSessionRequest = { context };
+    return this.http.post(`${this.apiUrl}/start`, body);
+  }
+
+  sendMessage(sessionId: string, text: string): Observable<any> {
+    const body: ChatRequest = { sessionId, text };
+    return this.http.post(`${this.apiUrl}/chat`, body);
   }
 }
